@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="products-list">
+
+    </div>
+
+    <script>
+        const API = 'http://localhost:3000'
+        const productsDiv = document.getElementById('products-list')
+
+        async function loadContent(){
+            const response = await fetch(API)
+            const products = await response.json()
+        
+            products.forEach(product => {
+                const productName = document.createElement('h1')
+                productName.textContent = product.name
+
+                const productPrice = document.createElement('p')
+                productPrice.textContent = product.price
+
+                productsDiv.appendChild(productName)
+                productsDiv.appendChild(productPrice)
+            });
+
+        }
+        loadContent()
+    </script>
+</body>
+</html>

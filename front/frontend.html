@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Pathway+Extreme:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&display=swap" rel="stylesheet">
+</head>
+
+<style>
+    *{
+        margin: 0px;
+        padding: 0px;
+        font-family: Montserrat;
+    }
+    :root{
+        --border-radius: 25px;
+    }
+    .product-card{
+        backdrop-filter: 15px;
+        width: 90%;
+        height: 350px;
+        display: flex;
+        text-align: start;
+        text-indent: 1.5rem;
+        background-image: url('./glass.png');
+        background-size: 100%;
+        background-blend-mode: darken;
+        flex-direction: column;
+        border-radius: var(--border-radius);
+        margin: 3%;
+    }
+    .product-card img{
+        border-top-left-radius: var(--border-radius);
+        border-top-right-radius: var(--border-radius)   ;
+        width: 100%;
+        height: 50%;
+        object-fit: cover;
+        object-position: 10% 20%;
+    }
+    #products-list{
+        display: grid;
+        grid-template-columns: 50% 50%;
+        justify-items: center;
+    }
+    .interButtons{
+        height: 50px;
+        border: none;
+        text-align: start;
+        text-indent: 1.5rem;
+        cursor: pointer;
+        background-color: transparent;
+        opacity: 1;
+        transition: 0.2s;
+    }
+    .interButtons:hover{
+        transition: 0.2s;
+        opacity: 0.7;
+    }
+</style>
+<body>
+    <div id="products-list">
+
+    </div>
+    <script>
+        const API = 'http://localhost:3000/'
+        const productsDiv = document.getElementById('products-list')
+
+        async function load(){
+            const response = await fetch(API,{method:'GET'})
+            const products = await response.json()
+            productsDiv.innerHTML = ""
+            products.forEach(product => {
+                const delBtn = document.createElement('button')
+                delBtn.textContent = 'Удалить'
+                
+                const editBtn = document.createElement('button')
+                editBtn.textContent = 'Обновить'
+
+                delBtn.addEventListener('click',()=> deleteContent(product.id))
+                editBtn.addEventListener('click',()=> updateContent(product.id))
+                
+                editBtn.className = 'interButtons'
+                delBtn.className = 'interButtons'
+                
+                const cardDiv = document.createElement('div')
+                cardDiv.classList = 'product-card'
+                const cartName = document.createElement('h1')
+                cartName.textContent = product.name
+
+                const iphoneImage = document.createElement('img')
+                iphoneImage.setAttribute('src','https://avatars.mds.yandex.net/i?id=13a823da87430a0ef2f1f27b6bc59e5c_l-4823985-images-thumbs&n=13')
+
+                const androidImage = document.createElement('img')
+                androidImage.setAttribute('src','https://ir.ozone.ru/s3/multimedia-1-r/w1200/7369440795.jpg')
+
+                const defaultImage = document.createElement('img')
+                defaultImage.setAttribute('src','https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/No-image.svg/960px-No-image.svg.png')
+
+                if(product.name == 'Iphone'){
+                    cardDiv.appendChild(iphoneImage)                    
+                }
+                if(product.name == 'Android'){
+                    cardDiv.appendChild(androidImage)
+                }
+
+                const cartPrice = document.createElement('p')
+                cartPrice.textContent = `Цена: ${product.price} руб.`
+
+                cardDiv.appendChild(cartName)
+                cardDiv.appendChild(cartPrice)
+                cardDiv.appendChild(delBtn)
+                cardDiv.appendChild(editBtn)
+
+                productsDiv.appendChild(cardDiv)
+            });
+        }
+        async function deleteContent(id){
+            const response = await fetch(`${API}${id}`, {method:'DELETE'})
+            console.log(response);
+            alert('Успешно удалено')
+            load()    
+        }   
+        async function updateContent(id){
+            const formData = new FormData();
+            const newName = prompt('Введите новое наименование')
+            const newPrice = prompt('Введите новую цену')
+            formData.append('name',newName);
+            formData.append('price',newPrice);
+            const response = await fetch(`${API}${id}`, {method:'PUT',body:formData})
+            alert('Успешно обновлено')    
+            load()
+        }
+        load()
+    </script>
+</body>
+</html>
