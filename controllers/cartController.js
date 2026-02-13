@@ -1,13 +1,26 @@
 
 const cart = [
     {id:1,name:"Iphone",price:40000},
-    {id:2,name:"Android",price:35000}
+    {id:2,name:"Iphone",price:42000},
+    {id:3,name:"Android",price:35000}
 ]
 let newId = 3;  
 
 class Cart {
     getAllProducts (req,res) {
         return res.send(cart)
+    }
+    getByFilter(req,res){
+        try {
+            const {name} = req.body
+            if(!name || name == ""){
+                return res.status(404).json({message:'НЕ найдено'})
+            }
+            const result = cart.filter(item => item.name == String(name))
+            return res.status(200).json(result)
+        } catch (error) {
+            console.log(error);
+        }
     }
     getOneProduct(req,res){
         const {id} = req.params
@@ -27,6 +40,9 @@ class Cart {
     update(req,res){
         const {id} = req.params
         const {name,price} = req.body
+        if (!name || !price) {
+            return res.status(400).send({ message: 'Invalid data' });
+        }
         const candidate = cart.find(item=> item.id === Number(id))
         candidate.name = name
         candidate.price = price

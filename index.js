@@ -4,7 +4,7 @@ const app = express();
 const PORT = 3000;
 const router = require('./routes/index')
 
-app.use(cors())
+app.use(cors({origin:'*',allowedHeaders:'*'}))
 app.use(express.json())
 
 app.use('/', router)

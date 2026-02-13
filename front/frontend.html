@@ -16,9 +16,12 @@
         font-family: Montserrat;
     }
     :root{
+        --def-color:#3d3d3d;
+        --def-margin: 10px 0px;
         --border-radius: 25px;
     }
     .product-card{
+        color: var(--def-color);
         backdrop-filter: 15px;
         width: 90%;
         height: 350px;
@@ -31,6 +34,7 @@
         flex-direction: column;
         border-radius: var(--border-radius);
         margin: 3%;
+        border: 1px solid #d4d2d2;
     }
     .product-card img{
         border-top-left-radius: var(--border-radius);
@@ -42,7 +46,7 @@
     }
     #products-list{
         display: grid;
-        grid-template-columns: 50% 50%;
+        grid-template-columns: 33% 33% 33%;
         justify-items: center;
     }
     .interButtons{
@@ -59,15 +63,77 @@
         transition: 0.2s;
         opacity: 0.7;
     }
+    #addForm{
+        margin-top: 10px;
+        border: 1px solid #d4d2d2;
+        margin-left: 3rem;
+        width: 500px;
+        height: 250px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border-radius: var(--border-radius);
+    }
+    #addForm input{
+        border-radius: var(--border-radius);
+        border: 1px solid #434343;
+        text-indent: 1.5rem;
+        margin: var(--def-margin);
+        height: 50px;
+        width: 300px;
+    }
+    #addForm button{
+        border-radius: var(--border-radius);
+        margin: var(--def-margin);
+        background-color: rgb(0, 171, 88);
+        color: white;
+        border: none;
+        font-weight: 500;
+        height: 50px;
+        width: 300px;
+    }
+    
 </style>
 <body>
-    <div id="products-list">
+    <h1 style="text-indent: 1.5rem; margin-top: 10px;">Добавить товар</h1>
+    <div id="addForm">
+        <h2>Name</h2>
+        <input placeholder="Введите наименование" id="input-name"/>
+        <h2>Price $</h2>
+        <input placeholder="Введите ценник" id="input-price"/>
+        <button id="addButton" onclick="create()">Добавить</button>
+    </div>
+    <h1 style="text-indent: 1.5rem;  margin-top: 10px;">Девайсы</h1>
+    <div class="filter-container">
+        <button onclick="filter(type = 'iphone')">Iphone</button>
+        <button onclick="filter(type = 'android')">Android</button>
+        <button onclick="filter(type = 'all')">Все</button>
+    </div>
+    <div id="products-list" style="text-indent: 3rem">
 
     </div>
     <script>
-        const API = 'http://localhost:3000/'
+        const API = 'http://localhost:3000/cart'
         const productsDiv = document.getElementById('products-list')
+        //Форма добавления
+        const priceInp = document.getElementById('input-price')
+        const nameInp = document.getElementById('input-name')
 
+        async function filter(type){
+            if(type = 'iphone'){
+                const name = JSON.stringify("Iphone")
+                const response = await fetch(`${API}/filtered`,{method:'POST',body:name})
+                console.log(response);
+            }
+            if(type = 'android'){
+                const name = "Android"
+                const response = await fetch(`${API}/filtered`,{method:'POST',body:name})
+                console.log(response);
+            }
+            if(type = 'all'){
+                load()
+            }
+        }
         async function load(){
             const response = await fetch(API,{method:'GET'})
             const products = await response.json()
@@ -118,19 +184,42 @@
             });
         }
         async function deleteContent(id){
-            const response = await fetch(`${API}${id}`, {method:'DELETE'})
-            console.log(response);
+            const response = await fetch(`${API}/${id}`, {method:'DELETE'})
+            console.log(response.status);
             alert('Успешно удалено')
             load()    
         }   
         async function updateContent(id){
-            const formData = new FormData();
             const newName = prompt('Введите новое наименование')
-            const newPrice = prompt('Введите новую цену')
-            formData.append('name',newName);
-            formData.append('price',newPrice);
-            const response = await fetch(`${API}${id}`, {method:'PUT',body:formData})
-            alert('Успешно обновлено')    
+            const newPrice = parseFloat(prompt('Введите новую цену'))
+            const formData = JSON.stringify({
+                name: newName,
+                price: Number(newPrice)
+            })
+            await fetch(`${API}/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: formData
+            });
+            load()
+        }
+        async function create(){
+            const name = nameInp.value;
+            const price = priceInp.value
+            const formData = JSON.stringify({
+                name:name,
+                price:Number(price)
+            })
+            const response = await fetch(API, {
+                method:'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body:formData
+            })
+            if(response.ok) {alert('Успешно добавлено')}
             load()
         }
         load()
